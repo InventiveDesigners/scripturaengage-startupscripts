@@ -1,4 +1,4 @@
-# scripturaengage-startuptscripts
+# scripturaengage-startupscripts
 
 Repository with startup scripts for Scriptura Engage.
 
