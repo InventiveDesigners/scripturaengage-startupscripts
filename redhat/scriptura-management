@@ -1,0 +1,78 @@
+#
+# scriptura-management	This shell script takes care of starting and stopping
+#                 	Scriptura Management.
+#
+# chkconfig: - 58 74
+# description: Scriptura Management
+
+### BEGIN INIT INFO
+# Provides: scriptura-management
+# Required-Start: $network $local_fs $remote_fs $autofs
+# Required-Stop: $network $local_fs $remote_fs $autofs
+# Should-Start: $syslog $named ntpdate
+# Should-Stop: $syslog $named
+# Short-Description: start and stop scriptura-management
+# Description: Scriptura Management
+### END INIT INFO
+
+# Source function library.
+. /etc/init.d/functions
+
+prog=scriptura-management
+lockfile=/var/lock/subsys/scriptura-management
+
+daemon_start="/usr/bin/scriptura-management &"
+daemon_stop=/opt/Inventive_Designers/Scriptura-8/stopmanagementserver/ScripturaStopManagementServer
+
+option="--user=scrptura"
+
+start() {
+        [ -x /opt/Inventive_Designers/Scriptura-8/startmanagementserver/ScripturaStartManagementServer ] || exit 5
+
+        # Start daemons.
+        echo -n $"Starting $prog: "
+        daemon $option $daemon_start
+        RETVAL=$?
+        echo
+        [ $RETVAL -eq 0 ] && touch $lockfile
+        return $RETVAL
+}
+
+stop() {
+        echo -n $"Shutting down $prog: "
+	$daemon_stop
+        RETVAL=$?
+        echo
+        [ $RETVAL -eq 0 ] && rm -f $lockfile
+        return $RETVAL
+}
+
+# See how we were called.
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  status)
+        status -p /var/run/scriptura-management.pid scriptura-management
+        ;;
+  restart|force-reload)
+        stop
+        wait 15
+        start
+        ;;
+  try-restart|condrestart)
+        if status $prog > /dev/null; then
+            stop
+            start
+        fi
+        ;;
+  reload)
+        exit 3
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|status|restart|try-restart|force-reload}"
+        exit 2
+esac
